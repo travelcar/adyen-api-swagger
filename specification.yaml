@@ -1,0 +1,1313 @@
+swagger: '2.0'
+info:
+  version: '18'
+  title: Adyen api
+  description: Operations about payments, recurring and payout
+  license:
+    name: Apache-2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+externalDocs:
+  description: Find more info about Adyen (Official api docs)
+  url: https://docs.adyen.com/developers
+host: pal-test.adyen.com
+basePath: /pal/servlet
+securityDefinitions:
+  auth:
+    type: basic
+    description: HTTP Basic Authentication. Works over `HTTPS`
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /Payment/v18/authorise:
+    post:
+      operationId: authorise
+      summary: Creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later. While for cards an authorised payment can be captured later, non-card methods typically don't support this and will automatically capture as part of the authorisation.
+      description: Creates a payment authorisation
+      parameters:
+      - name: paymentRequest
+        in: body
+        required: true
+        description: The Payment Request
+        schema:
+          $ref: '#/definitions/PaymentRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/PaymentResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Payment/v18/authorise3d:
+    post:
+      operationId: authorise3d
+      summary: For an authenticated 3-D secure session, creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later.
+      description: Completes a 3-D Secure payment authorisation
+      parameters:
+      - name: paymentRequest3d
+        in: body
+        required: true
+        description: The Payment Request
+        schema:
+          $ref: '#/definitions/PaymentRequest3d'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/PaymentResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Payment/v18/capture:
+    post:
+      operationId: capture
+      summary: Captures a payment authorisation
+      description: Captures the authorisation hold on a payment, returning a unique reference for this request. Usually the full authorisation amount is captured, however it's also possible to capture a smaller amount which results in cancelling the remaining authorisation balance. Payment methods which automatically capture as part of authorisation don't need to be captured, but submitting a capture request on these transactions will not result in double charges.
+      parameters:
+      - name: modificationRequest
+        in: body
+        required: true
+        description: The Modification Request
+        schema:
+          $ref: '#/definitions/ModificationRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ModificationResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Payment/v18/cancel:
+    post:
+      operationId: cancel
+      summary: Cancels a payment authorisation
+      description: Cancels the authorisation hold on a payment, returning a unique reference for this request.
+      parameters:
+      - name: modificationRequest
+        in: body
+        required: true
+        description: The Modification Request
+        schema:
+          $ref: '#/definitions/ModificationRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ModificationResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Payment/v18/refund:
+    post:
+      operationId: refund
+      summary: Refunds a payment
+      description: Refunds a payment which has previously been captured, returning a unique reference for this request. Refunding can be done on the full captured amount or a partial amount. Multiple (partial) refunds will be accepted as long as their sum doesn't exceed the captured amount. Payments which have been authorised, but not captured cannot be refunded, use the "cancel" method instead.
+      parameters:
+      - name: modificationRequest
+        in: body
+        required: true
+        description: The Modification Request
+        schema:
+          $ref: '#/definitions/ModificationRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ModificationResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Payment/v18/cancelOrRefund:
+    post:
+      operationId: cancelrefund
+      summary: Disable a stored payment detail
+      description: Performs a "cancel" on a payment if it has not yet been captured or a "refund" if it has already been captured. This is useful when it is not certain if the payment has been captured yet (e.g. when using auto-capture).
+      parameters:
+      - name: modificationRequest
+        in: body
+        required: true
+        description: The Modification Request
+        schema:
+          $ref: '#/definitions/ModificationRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ModificationResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Recurring/v18/disable:
+    post:
+      operationId: disable
+      summary: Disable a stored payment detail
+      description: Disable a stored payment detail
+      parameters:
+      - name: disableRequest
+        in: body
+        required: true
+        description: The disable request
+        schema:
+          $ref: '#/definitions/DisableRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/DisableResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Recurring
+  /Recurring/v18/listRecurringDetails:
+    post:
+      operationId: listRecurringDetails
+      summary: Retrieves stored payment details for a shopper
+      description: Lists the stored payment details for a shopper, if available. The recurring detail ID can be used with a regular authorisation request to charge the shopper. A summary of the payment detail is returned for presentation to the shopper.
+      parameters:
+      - name: recurringDetailsRequest
+        in: body
+        required: true
+        description: The recurring details request
+        schema:
+          $ref: '#/definitions/RecurringDetailsRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/RecurringDetailsResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Recurring
+  /Payout/v18/storeDetailAndSubmit:
+    post:
+      operationId: storeDetailAndSubmit
+      summary: Store the payouts details and make a payout request
+      description: Besides storing payout details using the normal payment flow, the payout web service offers a call to store payout details, either bank account or credit card, for a specific shopper and make a payout request in a single API call.
+      parameters:
+      - name: storeDetailAndSubmitRequest
+        in: body
+        required: true
+        description: The store detail and submit Request
+        schema:
+          $ref: '#/definitions/StoreDetailAndSubmitRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/StoreDetailAndSubmitResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payout
+  /Payout/v18/confirm:
+    post:
+      operationId: confirm
+      summary: Confirm a payout
+      description: You can decide over a period of seven days to proceed a payout, after which the payout expires automatically
+      parameters:
+      - name: confirmOrDeclineRequest
+        in: body
+        required: true
+        description: The confirm or decline payout request
+        schema:
+          $ref: '#/definitions/ConfirmOrDeclineRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ConfirmOrDeclineResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payout
+  /Payout/v18/decline:
+    post:
+      operationId: decline
+      summary: Decline a payout
+      description: You can decide over a period of seven days to cancel a payout, after which the payout expires automatically.
+      parameters:
+      - name: confirmOrDeclineRequest
+        in: body
+        required: true
+        description: The confirm or decline payout request
+        schema:
+          $ref: '#/definitions/ConfirmOrDeclineRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ConfirmOrDeclineResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payout
+definitions:
+  RecurringDetailReferenceType:
+    title: RecurringDetailReferenceType
+    description: the Recurring Detail Reference Type, You can set this field value to LATEST.
+    type: string
+    enum:
+      - 'LATEST'
+  PaymentRequest3d:
+    title: PaymentRequest3d
+    type: object
+    properties:
+      md:
+        type: string
+      paResponse:
+        type: string
+      amount:
+        $ref: '#/definitions/Amount'
+      reference:
+        description: the reference assigned to the payment
+        type: string
+      billingAddress:
+        $ref: '#/definitions/Address'
+      shopperIP:
+        description: the IP address of the shopper
+        type: string
+      merchantAccount:
+        description: the merchant account which will be used to process the payment
+        type: string
+      browserInfo:
+        $ref: '#/definitions/BrowserInfo'
+      shopperInteraction:
+        $ref: '#/definitions/ShopperInteraction'
+      shopperEmail:
+        description: the email address of the shopper / customer
+        type: string
+      shopperReference:
+        description: a reference used to uniquely identify the shopper (e.g. user ID or account ID)
+        type: string
+      recurring:
+        $ref: '#/definitions/Recurring'
+      shopperStatement:
+        description: the text to appear on the shopper's statement
+        type: string
+      fraudOffset:
+        description: the offset that is added to the normal fraud score (positive or negative)
+        type: integer
+        format: int32
+      sessionId:
+        type: string
+      additionalAmount:
+        $ref: '#/definitions/Amount'
+      selectedRecurringDetailReference:
+        description: the recurringDetailReference you want to use for this payment
+        type: string
+      orderReference:
+        description: the order reference to link multiple partial payments
+        type: string
+      merchantOrderReference:
+        description: the reference to link multiple transactions to each other
+        type: string
+      dccQuote:
+        $ref: '#/definitions/ForexQuote'
+      additionalData:
+        description: a map of name/value pairs for passing in additional/industry-specific data
+        type: object
+      shopperName:
+        $ref: '#/definitions/Name'
+      shopperLocale:
+        description: the combination of language code and country code to specify the language to be used in the payment
+        type: string
+      selectedBrand:
+        description: the selected brand how to process the payment for dual branded cards
+        type: string
+      deliveryAddress:
+        $ref: '#/definitions/Address'
+      deliveryDate:
+        description: the expected date of delivery or fulfillment
+        type: string
+        format: date-time
+      deviceFingerprint:
+        type: string
+      installments:
+        $ref: '#/definitions/Installments'
+      socialSecurityNumber:
+        description: the shopper's social security number
+        type: string
+      captureDelayHours:
+        description: the number of hours delay between the authorisation and scheduled auto-capture
+        type: integer
+        format: int32
+      dateOfBirth:
+        description: the shopper's date of birth
+        type: string
+        format: date-time
+      telephoneNumber:
+        description: the shopper's telephone number
+        type: string
+      mcc:
+        description: the mcc value that is required to process this payment
+        type: string
+      metadata:
+        description: a map of key/value pairs of metadata sent by merchant
+        type: object
+  ModificationRequest:
+    title: ModificationRequest
+    type: object
+    properties:
+      reference:
+        description: the reference assigned to this modification
+        type: string
+      modificationAmount:
+        $ref: '#/definitions/Amount'
+      authorisationCode:
+        description: the authorisation code of the payment (only required for the "authoriseReferral" method)
+        type: string
+      originalReference:
+        description: the pspreference of the payment to modify
+        type: string
+      merchantAccount:
+        description: the merchant account which will be used to process the payment
+        type: string
+      additionalData:
+        description: a map of name/value pairs for passing in additional / industry-specific data
+        type: object
+  ModificationResult:
+    title: ModificationResult
+    type: object
+    properties:
+      pspReference:
+        description: the unique identifier assigned to this modification.
+        type: string
+      response:
+        $ref: '#/definitions/ModificationResultResponse'
+      additionalData:
+        description: a map of name/value pairs for passing back additional / industry-specific data
+        type: object
+  PaymentRequest:
+    title: PaymentRequest
+    type: object
+    properties:
+      card:
+        $ref: '#/definitions/Card'
+      mpiData:
+        $ref: '#/definitions/ThreeDSecureData'
+      bankAccount:
+        $ref: '#/definitions/BankAccount'
+      amount:
+        $ref: '#/definitions/Amount'
+      reference:
+        description: the reference assigned to the payment
+        type: string
+      billingAddress:
+        $ref: '#/definitions/Address'
+      shopperIP:
+        description: the IP address of the shopper
+        type: string
+      merchantAccount:
+        description: the merchant account which will be used to process the payment
+        type: string
+      browserInfo:
+        $ref: '#/definitions/BrowserInfo'
+      shopperInteraction:
+        $ref: '#/definitions/ShopperInteraction'
+      shopperEmail:
+        description: the email address of the shopper / customer
+        type: string
+      shopperReference:
+        description: a reference used to uniquely identify the shopper (e.g. user ID or account ID)
+        type: string
+      recurring:
+        $ref: '#/definitions/Recurring'
+      shopperStatement:
+        description: the text to appear on the shopper's statement
+        type: string
+      fraudOffset:
+        description: the offset that is added to the normal fraud score (positive or negative)
+        type: integer
+        format: int32
+      sessionId:
+        type: string
+      additionalAmount:
+        $ref: '#/definitions/Amount'
+      selectedRecurringDetailReference:
+        description: the recurringDetailReference you want to use for this payment
+        type: string
+      orderReference:
+        description: the order reference to link multiple partial payments
+        type: string
+      merchantOrderReference:
+        description: the reference to link multiple transactions to each other
+        type: string
+      dccQuote:
+        $ref: '#/definitions/ForexQuote'
+      additionalData:
+        description: a map of name/value pairs for passing in additional/industry-specific data
+        type: object
+      shopperName:
+        $ref: '#/definitions/Name'
+      shopperLocale:
+        description: the combination of language code and country code to specify the language to be used in the payment
+        type: string
+      selectedBrand:
+        description: the selected brand how to process the payment for dual branded cards
+        type: string
+      deliveryAddress:
+        $ref: '#/definitions/Address'
+      deliveryDate:
+        description: the expected date of delivery or fulfillment
+        type: string
+        format: date-time
+      deviceFingerprint:
+        type: string
+      installments:
+        $ref: '#/definitions/Installments'
+      socialSecurityNumber:
+        description: the shopper's social security number
+        type: string
+      captureDelayHours:
+        description: the number of hours delay between the authorisation and scheduled auto-capture
+        type: integer
+        format: int32
+      dateOfBirth:
+        description: the shopper's date of birth
+        type: string
+        format: date-time
+      telephoneNumber:
+        description: the shopper's telephone number
+        type: string
+      mcc:
+        description: the mcc value that is required to process this payment
+        type: string
+      metadata:
+        description: a map of key/value pairs of metadata sent by merchant
+        type: object
+  DisableRequest:
+    title: DisableRequest
+    type: object
+    properties:
+      merchantAccount:
+        description: the merchant account which will be used for processing this request
+        type: string
+      shopperReference:
+        description: a reference you use to uniquely identify the shopper (e.g. user ID or account ID)
+        type: string
+      recurringDetailReference:
+        description: the recurring detail you wish to disable
+        type: string
+      contract:
+        description: specify the contract if you only want to disable a specific use
+        type: string
+  DisableResult:
+    title: DisableResult
+    type: object
+    properties:
+      response:
+        description: Depending on whether a specific recurring detail was in the request, result is either [detail-successfully-disabled] or [all-details-successfully-disabled]
+        type: string
+      details:
+        description: a list of one or more recurring payment details that were disabled
+        type: array
+        items:
+          $ref: '#/definitions/RecurringDetail'
+  RecurringDetailsRequest:
+    title: RecurringDetailsRequest
+    type: object
+    properties:
+      merchantAccount:
+        description: the merchant account which will be used for processing this request
+        type: string
+      shopperReference:
+        description: a reference you use to uniquely identify the shopper (e.g. user ID or account ID)
+        type: string
+      recurring:
+        $ref: '#/definitions/Recurring'
+  RecurringDetailsResult:
+    title: RecurringDetailsResult
+    type: object
+    properties:
+      creationDate:
+        description: the creation date when the shopper record was created
+        type: string
+        format: date-time
+      shopperReference:
+        description: the reference you use to uniquely identify the shopper (e.g. user ID or account ID)
+        type: string
+      details:
+        description: a list of one or more recurring payment details
+        type: array
+        items:
+          $ref: '#/definitions/RecurringDetail'
+      lastKnownShopperEmail:
+        description: the most recent email for this shopper (if available)
+        type: string
+  StoreDetailAndSubmitRequest:
+    title: StoreDetailAndSubmitRequest
+    type: object
+    required:
+    - amount
+    - merchantAccount
+    - recurring
+    - reference
+    - shopperEmail
+    - shopperReference
+    - card
+    properties:
+      amount:
+        $ref: '#/definitions/Amount'
+      merchantAccount:
+        description: the merchant account which will be used for processing this request
+        type: string
+      recurring:
+        $ref: '#/definitions/Recurring'
+      reference:
+        description: the reference assigned to the payment
+        type: string
+      shopperEmail:
+        description: the email address of the shopper / customer
+        type: string
+      shopperReference:
+        description: a reference you use to uniquely identify the shopper (e.g. user ID or account ID)
+        type: string
+      shopperStatement:
+        description: the text to appear on the shopper's statement
+        type: string
+      bank:
+        $ref: '#/definitions/BankAccount'
+      card:
+        $ref: '#/definitions/Card'
+      billingAddress:
+        $ref: '#/definitions/Address'
+  ConfirmOrDeclineRequest:
+    title: ConfirmOrDeclineRequest
+    type: object
+    required:
+    - merchantAccount
+    - originalReference
+    properties:
+      merchantAccount:
+        description: the merchant account which will be used for processing this request.
+        type: string
+      originalReference:
+        description: The PSP reference received in the submit payout response.
+        type: string
+  StoreDetailAndSubmitResult:
+    title: StoreDetailAndSubmitResult
+    type: object
+    required:
+    - pspReference
+    - resultCode
+    properties:
+      pspReference:
+        description: the unique identifier assigned to this modification. This reference is the pspReference of the payout.
+        type: string
+      resultCode:
+        description: In case of success, it is payout-submit-received / payout-confirm-received / payout-decline-received. In case of an error, an informational message is returned.
+        type: string
+  ConfirmOrDeclineResult:
+    title: ConfirmOrDeclineResult
+    type: object
+    required:
+    - pspReference
+    - response
+    properties:
+      pspReference:
+        description: the unique identifier assigned to this modification. This reference is the pspReference of the payout.
+        type: string
+      response:
+        description: In case of success, it is payout-confirm-received / payout-decline-received. In case of an error, an informational message is returned.
+        type: string
+  PayoutResultCodeType:
+    title: PayoutResultCodeType
+    description: The payout result code type
+    type: string
+    enum:
+      - '[payout-confirm-received]'
+      - '[payout-submit-received]'
+      - '[payout-decline-received]'
+  PaymentResult:
+    title: PaymentResult
+    type: object
+    properties:
+      authCode:
+        description: the authorisation code if the payment was successful
+        type: string
+      paRequest:
+        description: the 3D request data for the issuer
+        type: string
+      issuerUrl:
+        description: the URL to direct the shopper to
+        type: string
+      md:
+        description: the payment session
+        type: string
+      dccAmount:
+        $ref: '#/definitions/Amount'
+      dccSignature:
+        type: string
+      pspReference:
+        description: the unique reference that is associated with the payment
+        type: string
+      resultCode:
+        $ref: '#/definitions/ResultCode'
+      additionalData:
+        description: a map of name/value pairs for passing in additional/industry-specific data
+        type: object
+      refusalReason:
+        description: the mapped refusal reason
+        type: string
+      fraudResult:
+        $ref: '#/definitions/FraudResult'
+  RecurringDetail:
+    title: RecurringDetail
+    properties:
+      name:
+        description: An optional descriptive name for this recurring detail
+        type: string
+      creationDate:
+        type: string
+        format: date-time
+      card:
+        $ref: '#/definitions/Card'
+      billingAddress:
+        $ref: '#/definitions/Address'
+      additionalData:
+        type: object
+      shopperName:
+        $ref: '#/definitions/Name'
+      socialSecurityNumber:
+        type: string
+      recurringDetailReference:
+        description: The reference that uniquely identifies the recurring detail
+        type: string
+      bank:
+        $ref: '#/definitions/BankAccount'
+      alias:
+        type: string
+      aliasType:
+        type: string
+      variant:
+        type: string
+      paymentMethodVariant:
+        type: string
+      firstPspReference:
+        type: string
+      contractTypes:
+        type: array
+        items:
+          type: string
+      acquirer:
+        type: string
+      acquirerAccount:
+        type: string
+  ForexQuote:
+    title: ForexQuote
+    description: the forex quote as returned in the response of the forex service
+    type: object
+    required:
+    - validTill
+    - basePoints
+    properties:
+      reference:
+        description: the reference assigned to the forex quote request
+        type: string
+      interbank:
+        $ref: '#/definitions/Amount'
+      sell:
+        $ref: '#/definitions/Amount'
+      buy:
+        $ref: '#/definitions/Amount'
+      validTill:
+        type: string
+        format: date-time
+      basePoints:
+        type: integer
+        format: int32
+      source:
+        description: the source of the forex quote
+        type: string
+      signature:
+        description: the signature to validate the integrity
+        type: string
+      type:
+        description: the type of forex
+        type: string
+      baseAmount:
+        $ref: '#/definitions/Amount'
+      account:
+        description: the account name
+        type: string
+      accountType:
+        description: the account type
+        type: string
+  Recurring:
+    title: Recurring
+    description: the recurring properties of the payment
+    type: object
+    required:
+    - contract
+    properties:
+      contract:
+        $ref: '#/definitions/Contract'
+      recurringDetailName:
+        description: assign a descriptive name for this detail
+        type: string
+  Contract:
+    title: Contract
+    description: how the recurring detail will be used, multiple values allowed as comma separated
+    type: string
+    enum:
+      - 'ONECLICK'
+      - 'RECURRING'
+      - 'PAYOUT'
+  BrowserInfo:
+    title: BrowserInfo
+    description: the browser info data
+    type: object
+    required:
+    - userAgent
+    - acceptHeader
+    properties:
+      userAgent:
+        description: the user agent value of the shopper's browser
+        type: string
+        maxLength: 50
+        minLength: 10
+      acceptHeader:
+        description: the accept header value of the shopper's browser
+        type: string
+        maxLength: 50
+        minLength: 10
+  Amount:
+    title: Amount
+    description: the amount to charge
+    type: object
+    required:
+    - value
+    - currency
+    properties:
+      value:
+        description: the amount's value in minor units
+        type: integer
+        format: int64
+      currency:
+        description: the amount's three letter currency code (ISO 4217)
+        type: string
+        maxLength: 3
+        minLength: 3
+  Name:
+    title: Name
+    description: the name of the shopper
+    type: object
+    properties:
+      infix:
+        description: the infix
+        type: string
+      gender:
+        $ref: '#/definitions/Gender'
+      lastName:
+        description: the last name
+        type: string
+      firstName:
+        description: the first name
+        type: string
+  Installments:
+    title: Installments
+    description: the installment properties of the payment
+    type: object
+    properties:
+      value:
+        description: the number of installments in which the payment will be divided
+        type: integer
+        format: int32
+  Card:
+    title: Card
+    description: a representation of a (credit or debit) card
+    type: object
+    required:
+    - expiryMonth
+    - expiryYear
+    - holderName
+    - number
+    properties:
+      billingAddress:
+        $ref: '#/definitions/Address'
+      expiryMonth:
+        description: the month component of the expiry date (may be left padded with 0 for single digits)
+        type: string
+        maxLength: 2
+        minLength: 1
+      expiryYear:
+        description: the year component of the expiry date
+        type: string
+        maxLength: 4
+        minLength: 4
+      cvc:
+        description: the card security code which, depending on card brand, is referred to as CVV2/CVC2 (three digits) or CID (4 digits)
+        type: string
+        maxLength: 20
+        minLength: 1
+      holderName:
+        description: the cardholder name as printed on the card
+        type: string
+        maxLength: 50
+        minLength: 1
+      issueNumber:
+        description: <i>for some UK debit cards only</i> the issue number of the card
+        type: string
+        maxLength: 2
+        minLength: 1
+      number:
+        description: the card number (without separators)
+        type: string
+        maxLength: 19
+        minLength: 4
+      startMonth:
+        description: <i>for some UK debit cards only</i> the month component of the start date
+        type: string
+        maxLength: 2
+        minLength: 1
+      startYear:
+        description: <i>for some UK debit cards only</i> the year component of the start date
+        type: string
+        maxLength: 4
+        minLength: 4
+  Address:
+    title: Address
+    description: the address where to send the invoice
+    type: object
+    required:
+    - street
+    - city
+    - country
+    properties:
+      city:
+        description: the city
+        type: string
+      country:
+        description: the two letter country code (ISO 3166-1)
+        type: string
+        maxLength: 2
+        minLength: 2
+      houseNumberOrName:
+        description: the house number or name
+        type: string
+      postalCode:
+        description: the postal / zip code
+        type: string
+        maxLength: 10
+        minLength: 5
+      stateOrProvince:
+        description: the state or province
+        type: string
+        maxLength: 3
+        minLength: 2
+      street:
+        description: the street name
+        type: string
+  ThreeDSecureData:
+    title: ThreeDSecureData
+    description: authentication data produced by an MPI (MasterCard SecureCode or Verified By Visa)
+    type: object
+    properties:
+      cavvAlgorithm:
+        description: the CAVV algorithm used
+        type: string
+      directoryResponse:
+        $ref: '#/definitions/DirectoryResponse'
+      authenticationResponse:
+        $ref: '#/definitions/AuthenticationResponse'
+      xid:
+        description: 'the transaction identifier (base64 encoded, 20 bytes in decoded form)'
+        type: string
+        format: byte
+      cavv:
+        description: the cardholder authentication value (base64 encoded, 20 bytes in decoded form)
+        type: string
+        format: byte
+      eci:
+        description: the electronic commerce indicator
+        type: string
+  ResultCode:
+    title: ResultCode
+    description: the result of the payment
+    type: string
+    enum:
+      - 'Authorised'
+      - 'PartiallyAuthorised'
+      - 'Refused'
+      - 'Error'
+      - 'Cancelled'
+      - 'Received'
+      - 'RedirectShopper'
+  Gender:
+    title: Gender
+    description: the gender
+    type: string
+    maxLength: 1
+    minLength: 1
+    enum:
+      - 'MALE'
+      - 'FEMALE'
+      - 'UNKNOWN'
+  DirectoryResponse:
+    title: DirectoryResponse
+    description: the enrollment response from the 3D directory server
+    type: string
+    enum:
+      - 'Y'
+      - 'N'
+      - 'U'
+      - 'E'
+  AuthenticationResponse:
+    title: AuthenticationResponse
+    description: the authentication response if the shopper was redirected
+    type: string
+    enum:
+      - 'Y'
+      - 'N'
+      - 'U'
+      - 'A'
+  ModificationResultResponse:
+    title: ModificationResultResponse
+    description: the response which indicates if the modification request has been received for processing.
+    type: string
+    enum:
+      - '[capture-received]'
+      - '[cancel-received]'
+      - '[refund-received]'
+      - '[cancelOrRefund-received]'
+  ShopperInteraction:
+    title: ShopperInteraction
+    description: how the shopper interacts with the system
+    type: string
+    enum:
+      - 'Ecommerce'
+      - 'ContAuth'
+      - 'Moto'
+  BankAccount:
+    title: BankAccount
+    description: a representation of a bank account
+    type: object
+    required:
+    - 'iban'
+    - 'ownerName'
+    - 'countryCode'
+    properties:
+      iban:
+        description: the international bank account number
+        type: string
+        maxLength: 34
+        minLength: 14
+      ownerName:
+        description: the bank account holder name
+        type: string
+      bankName:
+        description: the name of the bank
+        type: string
+      taxId:
+        description: the bank account holder TAX id
+        type: string
+      bankCity:
+        description: the bank city
+        type: string
+      countryCode:
+        description: the two letter country code where the bank account is located (ISO 3166-1)
+        type: string
+        maxLength: 2
+        minLength: 2
+      bankAccountNumber:
+        description: the bank account number (without separators)
+        type: string
+      bankLocationId:
+        description: the bank transit routing number
+        type: string
+      bic:
+        description: the business identifier code
+        type: string
+        maxLength: 11
+        minLength: 8
+  FraudResult:
+    title: FraudResult
+    description: the fraud result properties of the payment
+    type: object
+    required:
+    - accountScore
+    properties:
+      accountScore:
+        description: the total fraud score generated by the risk checks
+        type: integer
+        format: int32
+      results:
+        description: the result of the individual risk checks
+        type: array
+        items:
+          $ref: '#/definitions/FraudCheckResult'
+  FraudCheckResult:
+    title: FraudCheckResult
+    type: object
+    required:
+    - name
+    - accountScore
+    - checkId
+    properties:
+      name:
+        description: the name of the risk check
+        type: string
+      accountScore:
+        description: the fraud score generated by the risk check
+        type: integer
+        format: int32
+      checkId:
+        description: the id of the risk check
+        type: integer
+        format: int32
+  Error:
+    title: Error
+    type: object
+    properties:
+      status:
+        description: the HTTP response status code
+        type: string
+      errorCode:
+        description: the Adyen code thatt is mapped to the error message
+        type: string
+      message:
+        description: the message, a short explanation of the issue
+        type: string
+      errorType:
+        $ref: '#/definitions/ErrorType'
+  ErrorType:
+    title: ErrorType
+    description: the type of error that was encountered
+    type: string
+    enum:
+      - 'internal'
+      - 'validation'
+      - 'security'
+      - 'configuration'
