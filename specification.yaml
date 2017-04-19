@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: '18'
+  version: '25'
   title: Adyen api
   description: Operations about payments, recurring and payout
   license:
