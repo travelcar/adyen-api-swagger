@@ -22,7 +22,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /Payment/v18/authorise:
+  /Payment/v25/authorise:
     post:
       operationId: authorise
       summary: Creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later. While for cards an authorised payment can be captured later, non-card methods typically don't support this and will automatically capture as part of the authorisation.
@@ -63,7 +63,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v18/authorise3d:
+  /Payment/v25/authorise3d:
     post:
       operationId: authorise3d
       summary: For an authenticated 3-D secure session, creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later.
@@ -104,7 +104,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v18/capture:
+  /Payment/v25/capture:
     post:
       operationId: capture
       summary: Captures a payment authorisation
@@ -145,7 +145,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v18/cancel:
+  /Payment/v25/cancel:
     post:
       operationId: cancel
       summary: Cancels a payment authorisation
@@ -186,7 +186,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v18/refund:
+  /Payment/v25/refund:
     post:
       operationId: refund
       summary: Refunds a payment
@@ -227,7 +227,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v18/cancelOrRefund:
+  /Payment/v25/cancelOrRefund:
     post:
       operationId: cancelrefund
       summary: Disable a stored payment detail
@@ -268,7 +268,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Recurring/v18/disable:
+  /Recurring/v25/disable:
     post:
       operationId: disable
       summary: Disable a stored payment detail
@@ -309,7 +309,7 @@ paths:
         - auth: []
       tags:
         - Recurring
-  /Recurring/v18/listRecurringDetails:
+  /Recurring/v25/listRecurringDetails:
     post:
       operationId: listRecurringDetails
       summary: Retrieves stored payment details for a shopper
@@ -350,7 +350,7 @@ paths:
         - auth: []
       tags:
         - Recurring
-  /Payout/v18/storeDetailAndSubmit:
+  /Payout/v25/storeDetailAndSubmit:
     post:
       operationId: storeDetailAndSubmit
       summary: Store the payouts details and make a payout request
@@ -391,7 +391,7 @@ paths:
         - auth: []
       tags:
         - Payout
-  /Payout/v18/confirm:
+  /Payout/v25/confirm:
     post:
       operationId: confirm
       summary: Confirm a payout
@@ -432,7 +432,7 @@ paths:
         - auth: []
       tags:
         - Payout
-  /Payout/v18/decline:
+  /Payout/v25/decline:
     post:
       operationId: decline
       summary: Decline a payout
