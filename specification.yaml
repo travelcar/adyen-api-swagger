@@ -853,7 +853,13 @@ definitions:
         description: Informs about the origin of the notification, if true means the notification originated from the live environment, else if false so the notification originated from the test environment.
         type: boolean
       notificationItems:
-        $ref: '#/definitions/NotificationRequestItem'
+        type: array
+        items:
+          title: NotificationRequestItem
+          type: object
+          properties:
+            NotificationRequestItem:
+              $ref: '#/definitions/NotificationRequestItemDetails'
   NotificationResult:
     title: NotificationResult
     type: object
@@ -865,7 +871,7 @@ definitions:
         type: string
         enum:
           - '[accepted]'
-  NotificationRequestItem:
+  NotificationRequestItemDetails:
     title: NotificationRequestItem
     type: object
     required:
