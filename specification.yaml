@@ -842,6 +842,84 @@ definitions:
       response:
         description: In case of success, it is payout-confirm-received / payout-decline-received. In case of an error, an informational message is returned.
         type: string
+  NotificationRequest:
+    title: NotificationRequest
+    type: object
+    required:
+    - live
+    - notificationItems
+    properties:
+      live:
+        description: Informs about the origin of the notification, if true means the notification originated from the live environment, else if false so the notification originated from the test environment.
+        type: boolean
+      notificationItems:
+        $ref: '#/definitions/NotificationRequestItem'
+  NotificationResult:
+    title: NotificationResult
+    type: object
+    required:
+    - notificationResponse
+    properties:
+      notificationResponse:
+        description: In case of success, we send back a [accepeted] response to confirm adyen that we accepeted the corresponding notification
+        type: string
+        enum:
+          - '[accepted]'
+  NotificationRequestItem:
+    title: NotificationRequestItem
+    type: object
+    required:
+    - amount
+    - pspReference
+    - eventCode
+    - eventDate
+    - merchantAccountCode
+    - operations
+    - merchantReference
+    - paymentMethod
+    - success
+    properties:
+      additionalData:
+        description: a map of name/value pairs for passing in additional/industry-specific data
+        type: object
+      amount:
+        $ref: '#/definitions/Amount'
+      pspReference:
+        description: the unique identifier associated with the transaction/the request
+        type: string
+      eventCode:
+        $ref: '#/definitions/EventCode'
+      eventDate:
+        description: The time when the event was generated.
+        type: string
+        format: date-time
+      merchantAccountCode:
+        description: The merchant account identifier used in the transaction the notification item refers to.
+        type: string
+      operations:
+        description: This field holds a list of the modification operations supported by the transaction the notification item refers to.
+        type: array
+        items:
+          type: string
+          enum:
+            - 'CANCEL'
+            - 'CAPTURE'
+            - 'REFUND'
+      merchantReference:
+        description: A reference to uniquely identify the payment.
+        type: string
+      originalReference:
+        description: The originalReference value corresponds to the  pspReference value assigned to the original payment, it's populated only if is about Modification request
+        type: string
+      paymentMethod:
+        description: The payment method used in the transaction the notification item refers to.
+        type: string
+      reason:
+        description: This field holds plain text. The value varies depending on whether the outcome of the event is successful or not (
+        type: string
+      success:
+        description: Informs about the outcome of the event (eventCode) the notification refers to, if true then the event (eventCode) the notification refers to was executed successfully, else if false then the event was not executed successfully.
+        type: boolean
   PayoutResultCodeType:
     title: PayoutResultCodeType
     description: The payout result code type
@@ -1165,6 +1243,43 @@ definitions:
       - 'Cancelled'
       - 'Received'
       - 'RedirectShopper'
+  EventCode:
+    title: EventCode
+    description: The type of event the notification item refers to.
+    type: string
+    enum:
+      - 'AUTHORISATION'
+      - 'CANCELLATION'
+      - 'REFUND'
+      - 'CANCEL_OR_REFUND'
+      - 'CAPTURE'
+      - 'CAPTURE_FAILED'
+      - 'REFUND_FAILED'
+      - 'REFUNDED_REVERSED'
+      - 'PAIDOUT_REVERSED'
+      - 'VOID_PENDING_REFUND'
+      - 'REQUEST_FOR_INFORMATION'
+      - 'CHARGEBACK'
+      - 'CHARGEBACK_REVERSED'
+      - 'NOTIFICATION_OF_CHARGEBACK'
+      - 'NOTIFICATION_OF_FRAUD'
+      - 'MANUAL_REVIEW_ACCEPT'
+      - 'MANUAL_REVIEW_REJECT'
+      - 'RECURRING_CONTRACT'
+      - 'PAYOUT_EXPIRE'
+      - 'PAYOUT_DECLINE'
+      - 'PAYOUT_THIRDPARTY'
+      - 'REFUND_WITH_DATA'
+      - 'AUTHORISE_REFERRAL'
+      - 'FRAUD_ONLY'
+      - 'FUND_TRANSFER'
+      - 'HANDLED_EXTERNALLY'
+      - 'OFFER_CLOSED'
+      - 'ORDER_OPENED'
+      - 'ORDER_CLOSED'
+      - 'PENDING'
+      - 'PROCESS_RETRY'
+      - 'REPORT_AVAILABLE'
   Gender:
     title: Gender
     description: the gender

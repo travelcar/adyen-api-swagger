@@ -20,4 +20,4 @@ if [ "$output" = "" ]; then
     echo "[INFO] No command line input provided. Set \$output to $output"
 fi
 
-java -jar swagger-codegen-cli-2.2.2.jar generate -i ../specification.yaml -l javascript  -c ../client/javascript/config.json -o ../adyen-api-js
+java -jar swagger-codegen-cli-2.2.2.jar generate -i ../specification.yaml -l $language  -c ../client/javascript/config.json -o ../$output
