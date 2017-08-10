@@ -855,7 +855,7 @@ definitions:
       notificationItems:
         type: array
         items:
-          title: NotificationRequestItem
+          title: notificationItems
           type: object
           properties:
             NotificationRequestItem:
