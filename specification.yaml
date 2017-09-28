@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: '25'
+  version: '30'
   title: Adyen api
   description: Operations about payments, recurring and payout
   license:
@@ -22,7 +22,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /Payment/v25/authorise:
+  /Payment/v30/authorise:
     post:
       operationId: authorise
       summary: Creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later. While for cards an authorised payment can be captured later, non-card methods typically don't support this and will automatically capture as part of the authorisation.
@@ -63,7 +63,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v25/authorise3d:
+  /Payment/v30/authorise3d:
     post:
       operationId: authorise3d
       summary: For an authenticated 3-D secure session, creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later.
@@ -104,7 +104,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v25/capture:
+  /Payment/v30/capture:
     post:
       operationId: capture
       summary: Captures a payment authorisation
@@ -145,7 +145,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v25/cancel:
+  /Payment/v30/cancel:
     post:
       operationId: cancel
       summary: Cancels a payment authorisation
@@ -186,7 +186,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v25/refund:
+  /Payment/v30/refund:
     post:
       operationId: refund
       summary: Refunds a payment
@@ -227,7 +227,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Payment/v25/cancelOrRefund:
+  /Payment/v30/cancelOrRefund:
     post:
       operationId: cancelrefund
       summary: Disable a stored payment detail
@@ -268,7 +268,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Recurring/v25/disable:
+  /Recurring/v30/disable:
     post:
       operationId: disable
       summary: Disable a stored payment detail
@@ -309,7 +309,7 @@ paths:
         - auth: []
       tags:
         - Recurring
-  /Recurring/v25/listRecurringDetails:
+  /Recurring/v30/listRecurringDetails:
     post:
       operationId: listRecurringDetails
       summary: Retrieves stored payment details for a shopper
@@ -350,7 +350,7 @@ paths:
         - auth: []
       tags:
         - Recurring
-  /Payout/v25/storeDetailAndSubmit:
+  /Payout/v30/storeDetailAndSubmitThirdParty:
     post:
       operationId: storeDetailAndSubmit
       summary: Store the payouts details and make a payout request
@@ -391,7 +391,7 @@ paths:
         - auth: []
       tags:
         - Payout
-  /Payout/v25/confirm:
+  /Payout/v30/confirm:
     post:
       operationId: confirm
       summary: Confirm a payout
@@ -432,7 +432,7 @@ paths:
         - auth: []
       tags:
         - Payout
-  /Payout/v25/decline:
+  /Payout/v30/decline:
     post:
       operationId: decline
       summary: Decline a payout
@@ -771,50 +771,62 @@ definitions:
     type: object
     required:
     - amount
+    - entityType
     - merchantAccount
+    - nationality
     - recurring
     - reference
     - shopperEmail
+    - shopperName
     - shopperReference
-    - card
     properties:
+      additionalData:
+        description: a map of name/value pairs for passing in additional/industry-specific data
+        type: object
       amount:
         $ref: '#/definitions/Amount'
+      bank:
+        $ref: '#/definitions/BankAccount'
+      billingAddress:
+        $ref: '#/definitions/Address'
+      card:
+        $ref: '#/definitions/Card'
+      dateOfBirth:
+        description: the shopper's date of birth
+        type: string
+        format: date-time
+      entityType:
+        $ref: '#/definitions/PayoutEntityType'
+      fraudOffset:
+        description: the offset that is added to the normal fraud score (positive or negative)
+        type: integer
+        format: int32
       merchantAccount:
         description: the merchant account which will be used for processing this request
         type: string
+      nationality:
+        description: The shopper's nationality, A valid value is an ISO 2-character country code (e.g. 'NL').
+        type: string
+        maxLength: 2
+        minLength: 2
       recurring:
         $ref: '#/definitions/Recurring'
       reference:
         description: the reference assigned to the payment
         type: string
+      selectedBrand:
+        description: The name of the brand to make a payout to. For Paysafecard it must be set to paysafecard.
+        type: string
       shopperEmail:
         description: the email address of the shopper / customer
         type: string
+      shopperName:
+        $ref: '#/definitions/Name'
       shopperReference:
         description: a reference you use to uniquely identify the shopper (e.g. user ID or account ID)
         type: string
       shopperStatement:
         description: the text to appear on the shopper's statement
-        type: string
-      bank:
-        $ref: '#/definitions/BankAccount'
-      card:
-        $ref: '#/definitions/Card'
-      billingAddress:
-        $ref: '#/definitions/Address'
-  ConfirmOrDeclineRequest:
-    title: ConfirmOrDeclineRequest
-    type: object
-    required:
-    - merchantAccount
-    - originalReference
-    properties:
-      merchantAccount:
-        description: the merchant account which will be used for processing this request.
-        type: string
-      originalReference:
-        description: The PSP reference received in the submit payout response.
         type: string
   StoreDetailAndSubmitResult:
     title: StoreDetailAndSubmitResult
@@ -823,11 +835,33 @@ definitions:
     - pspReference
     - resultCode
     properties:
+      additionalData:
+        description: This field contains additional data, which may be returned in a particular response.
+        type: object
       pspReference:
         description: the unique identifier assigned to this modification. This reference is the pspReference of the payout.
         type: string
       resultCode:
         description: In case of success, it is payout-submit-received / payout-confirm-received / payout-decline-received. In case of an error, an informational message is returned.
+        type: string
+      refusalReason:
+        description: In case of refusal, an informational message for the reason.
+        type: string
+  ConfirmOrDeclineRequest:
+    title: ConfirmOrDeclineRequest
+    type: object
+    required:
+    - merchantAccount
+    - originalReference
+    properties:
+      additionalData:
+        description: This field contains additional data, which may be returned in a particular response.
+        type: object
+      merchantAccount:
+        description: the merchant account which will be used for processing this request.
+        type: string
+      originalReference:
+        description: The PSP reference received in the submit payout response.
         type: string
   ConfirmOrDeclineResult:
     title: ConfirmOrDeclineResult
@@ -985,6 +1019,7 @@ definitions:
       shopperName:
         $ref: '#/definitions/Name'
       socialSecurityNumber:
+        description: the shopper's social security number
         type: string
       recurringDetailReference:
         description: The reference that uniquely identifies the recurring detail
@@ -1108,17 +1143,22 @@ definitions:
     title: Name
     description: the name of the shopper
     type: object
+    required:
+    - firstName
+    - gender
+    - lastName
     properties:
-      infix:
-        description: the infix
+      firstName:
+        description: the first name
         type: string
       gender:
         $ref: '#/definitions/Gender'
+      infix:
+        description: the infix
+        type: string
+        minLength: 20
       lastName:
         description: the last name
-        type: string
-      firstName:
-        description: the first name
         type: string
   Installments:
     title: Installments
@@ -1139,23 +1179,21 @@ definitions:
     - holderName
     - number
     properties:
-      billingAddress:
-        $ref: '#/definitions/Address'
-      expiryMonth:
-        description: the month component of the expiry date (may be left padded with 0 for single digits)
-        type: string
-        maxLength: 2
-        minLength: 1
-      expiryYear:
-        description: the year component of the expiry date
-        type: string
-        maxLength: 4
-        minLength: 4
       cvc:
         description: the card security code which, depending on card brand, is referred to as CVV2/CVC2 (three digits) or CID (4 digits)
         type: string
         maxLength: 20
         minLength: 1
+      expiryMonth:
+        description: the month component of the expiry date (may be left padded with 0 for single digits)
+        type: string
+        maxLength: 2
+        minLength: 2
+      expiryYear:
+        description: the year component of the expiry date
+        type: string
+        maxLength: 4
+        minLength: 4
       holderName:
         description: the cardholder name as printed on the card
         type: string
@@ -1186,9 +1224,9 @@ definitions:
     description: the address where to send the invoice
     type: object
     required:
-    - street
     - city
     - country
+    - street
     properties:
       city:
         description: the city
@@ -1331,15 +1369,47 @@ definitions:
       - 'Ecommerce'
       - 'ContAuth'
       - 'Moto'
+  PayoutEntityType:
+    title: PayoutEntityType
+    description: The type of the entity the payout
+    type: string
+    enum:
+      - 'NaturalPerson'
+      - 'Company'
   BankAccount:
     title: BankAccount
     description: a representation of a bank account
     type: object
     required:
-    - 'iban'
-    - 'ownerName'
-    - 'countryCode'
+    - bankAccountNumber
+    - bankLocationId
+    - bankName
+    - countryCode
+    - iban
+    - ownerName
     properties:
+      bankAccountNumber:
+        description: the bank account number (without separators)
+        type: string
+      bankCity:
+        description: the bank city
+        type: string
+      bankLocationId:
+        description: the bank transit routing number, the field value is nil in most cases.
+        type: string
+      bankName:
+        description: the name of the bank
+        type: string
+      bic:
+        description: the business identifier code
+        type: string
+        maxLength: 11
+        minLength: 8
+      countryCode:
+        description: the two letter country code where the bank account is located (ISO 3166-1)
+        type: string
+        maxLength: 2
+        minLength: 2
       iban:
         description: the international bank account number
         type: string
@@ -1348,31 +1418,10 @@ definitions:
       ownerName:
         description: the bank account holder name
         type: string
-      bankName:
-        description: the name of the bank
-        type: string
+        minLength: 3
       taxId:
         description: the bank account holder TAX id
         type: string
-      bankCity:
-        description: the bank city
-        type: string
-      countryCode:
-        description: the two letter country code where the bank account is located (ISO 3166-1)
-        type: string
-        maxLength: 2
-        minLength: 2
-      bankAccountNumber:
-        description: the bank account number (without separators)
-        type: string
-      bankLocationId:
-        description: the bank transit routing number
-        type: string
-      bic:
-        description: the business identifier code
-        type: string
-        maxLength: 11
-        minLength: 8
   FraudResult:
     title: FraudResult
     description: the fraud result properties of the payment
