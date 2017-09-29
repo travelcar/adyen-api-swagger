@@ -516,6 +516,7 @@ definitions:
       shopperStatement:
         description: the text to appear on the shopper's statement
         type: string
+        maxLength: 22
       fraudOffset:
         description: the offset that is added to the normal fraud score (positive or negative)
         type: integer
@@ -647,6 +648,7 @@ definitions:
       shopperStatement:
         description: the text to appear on the shopper's statement
         type: string
+        maxLength: 22
       fraudOffset:
         description: the offset that is added to the normal fraud score (positive or negative)
         type: integer
@@ -828,6 +830,7 @@ definitions:
       shopperStatement:
         description: the text to appear on the shopper's statement
         type: string
+        maxLength: 22
   StoreDetailAndSubmitResult:
     title: StoreDetailAndSubmitResult
     type: object
