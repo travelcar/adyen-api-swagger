@@ -391,7 +391,7 @@ paths:
         - auth: []
       tags:
         - Payout
-  /Payout/v30/confirm:
+  /Payout/v30/confirmThirdParty:
     post:
       operationId: confirm
       summary: Confirm a payout
@@ -432,7 +432,7 @@ paths:
         - auth: []
       tags:
         - Payout
-  /Payout/v30/decline:
+  /Payout/v30/declineThirdParty:
     post:
       operationId: decline
       summary: Decline a payout
@@ -845,7 +845,7 @@ definitions:
         description: the unique identifier assigned to this modification. This reference is the pspReference of the payout.
         type: string
       resultCode:
-        description: In case of success, it is payout-submit-received / payout-confirm-received / payout-decline-received. In case of an error, an informational message is returned.
+        description: In case of success, it is payout-submit-received. In case of an error, an informational message is returned.
         type: string
       refusalReason:
         description: In case of refusal, an informational message for the reason.
