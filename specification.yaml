@@ -25,8 +25,8 @@ paths:
   /Payment/v30/authorise:
     post:
       operationId: authorise
-      summary: Creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later. While for cards an authorised payment can be captured later, non-card methods typically don't support this and will automatically capture as part of the authorisation.
-      description: Creates a payment authorisation
+      summary: Creates a payment authorisation
+      description: Creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later. While for cards an authorised payment can be captured later, non-card methods typically don't support this and will automatically capture as part of the authorisation.
       parameters:
       - name: paymentRequest
         in: body
@@ -66,8 +66,8 @@ paths:
   /Payment/v30/authorise3d:
     post:
       operationId: authorise3d
-      summary: For an authenticated 3-D secure session, creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later.
-      description: Completes a 3-D Secure payment authorisation
+      summary: Completes a 3-D Secure payment authorisation
+      description: For an authenticated 3-D secure session, creates a payment with a unique reference (pspReference) and attempts to obtain an authorisation hold, which can be "captured" or "cancelled" later.
       parameters:
       - name: paymentRequest3d
         in: body
@@ -80,6 +80,47 @@ paths:
           description: OK - the request has succeeded.
           schema:
             $ref: '#/definitions/PaymentResult'
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - auth: []
+      tags:
+        - Payment
+  /Payment/v30/adjustAuthorisation:
+    post:
+      operationId: adjustAuthorisation
+      summary: Increase or decrease the authorised amount
+      description: Allows you to increase or decrease the authorised amount after the initial authorisation has taken place. This functionality enables tipping, improving the chances your authorisation will be valid, charging the shopper when they have already left the merchant premises, etc.
+      parameters:
+      - name: modificationRequest
+        in: body
+        required: true
+        description: The Modification Request
+        schema:
+          $ref: '#/definitions/ModificationRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          schema:
+            $ref: '#/definitions/ModificationResult'
         400:
           description: Bad Request - a problem reading or understanding the request.
           schema:
@@ -580,20 +621,20 @@ definitions:
   ModificationRequest:
     title: ModificationRequest
     type: object
+    required:
+    - merchantAccount
+    - originalReference
     properties:
-      reference:
-        description: the reference assigned to this modification
+      merchantAccount:
+        description: the merchant account which will be used to process the payment
         type: string
       modificationAmount:
         $ref: '#/definitions/Amount'
-      authorisationCode:
-        description: the authorisation code of the payment (only required for the "authoriseReferral" method)
-        type: string
       originalReference:
         description: the pspreference of the payment to modify
         type: string
-      merchantAccount:
-        description: the merchant account which will be used to process the payment
+      reference:
+        description: the reference assigned to this modification
         type: string
       additionalData:
         description: a map of name/value pairs for passing in additional / industry-specific data
@@ -601,15 +642,18 @@ definitions:
   ModificationResult:
     title: ModificationResult
     type: object
+    required:
+    - pspReference
+    - response
     properties:
+      additionalData:
+        description: a map of name/value pairs for passing back additional / industry-specific data
+        type: object
       pspReference:
         description: the unique identifier assigned to this modification.
         type: string
       response:
         $ref: '#/definitions/ModificationResultResponse'
-      additionalData:
-        description: a map of name/value pairs for passing back additional / industry-specific data
-        type: object
   PaymentRequest:
     title: PaymentRequest
     type: object
@@ -1229,6 +1273,7 @@ definitions:
     required:
     - city
     - country
+    - houseNumberOrName
     - street
     properties:
       city:
@@ -1364,6 +1409,7 @@ definitions:
       - '[cancel-received]'
       - '[refund-received]'
       - '[cancelOrRefund-received]'
+      - '[adjustAuthorisation-received]'
   ShopperInteraction:
     title: ShopperInteraction
     description: how the shopper interacts with the system
