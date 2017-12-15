@@ -1,6 +1,6 @@
 {
   "projectName": "adyen-api-js",
-  "projectVersion": "1.30.2",
+  "projectVersion": "1.30.3",
   "emitModelMethods": "true",
   "usePromises": "true",
   "projectLicenseName": "Apache-2.0"

@@ -270,7 +270,7 @@ paths:
         - Payment
   /Payment/v30/cancelOrRefund:
     post:
-      operationId: cancelrefund
+      operationId: cancelOrRefund
       summary: Disable a stored payment detail
       description: Performs a "cancel" on a payment if it has not yet been captured or a "refund" if it has already been captured. This is useful when it is not certain if the payment has been captured yet (e.g. when using auto-capture).
       parameters:
@@ -1344,12 +1344,14 @@ definitions:
       - 'CANCELLATION'
       - 'REFUND'
       - 'CANCEL_OR_REFUND'
+      - 'AUTHORISATION_ADJUSTMENT'
       - 'CAPTURE'
       - 'CAPTURE_FAILED'
       - 'REFUND_FAILED'
       - 'REFUNDED_REVERSED'
       - 'PAIDOUT_REVERSED'
       - 'VOID_PENDING_REFUND'
+      - 'POSTPONED_REFUND'
       - 'REQUEST_FOR_INFORMATION'
       - 'CHARGEBACK'
       - 'CHARGEBACK_REVERSED'
