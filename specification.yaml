@@ -309,7 +309,7 @@ paths:
         - auth: []
       tags:
         - Payment
-  /Recurring/v30/disable:
+  /Recurring/v25/disable:
     post:
       operationId: disable
       summary: Disable a stored payment detail
@@ -350,7 +350,7 @@ paths:
         - auth: []
       tags:
         - Recurring
-  /Recurring/v30/listRecurringDetails:
+  /Recurring/v25/listRecurringDetails:
     post:
       operationId: listRecurringDetails
       summary: Retrieves stored payment details for a shopper
@@ -757,18 +757,24 @@ definitions:
     title: DisableRequest
     type: object
     properties:
+      contract:
+        $ref: '#/definitions/Contract'
       merchantAccount:
-        description: the merchant account which will be used for processing this request
-        type: string
-      shopperReference:
-        description: a reference you use to uniquely identify the shopper (e.g. user ID or account ID)
+        description: Your merchant account.
         type: string
       recurringDetailReference:
-        description: the recurring detail you wish to disable
+        description: |-
+          The ID that uniquely identifies the recurring detail reference.
+          If it is not provided, the whole recurring contract of the `shopperReference` will be disabled, which includes all recurring details.
         type: string
-      contract:
-        description: specify the contract if you only want to disable a specific use
+      shopperReference:
+        description: |-
+          The ID that uniquely identifies the shopper.
+          This `shopperReference` must be the same as the `shopperReference` used in the initial payment.
         type: string
+    required:
+      - merchantAccount
+      - shopperReference
   DisableResult:
     title: DisableResult
     type: object
@@ -776,41 +782,39 @@ definitions:
       response:
         description: Depending on whether a specific recurring detail was in the request, result is either [detail-successfully-disabled] or [all-details-successfully-disabled]
         type: string
-      details:
-        description: a list of one or more recurring payment details that were disabled
-        type: array
-        items:
-          $ref: '#/definitions/RecurringDetail'
   RecurringDetailsRequest:
     title: RecurringDetailsRequest
     type: object
     properties:
       merchantAccount:
-        description: the merchant account which will be used for processing this request
-        type: string
-      shopperReference:
-        description: a reference you use to uniquely identify the shopper (e.g. user ID or account ID)
+        description: The merchant account identifier you want to process the (transaction) request with.
         type: string
       recurring:
         $ref: '#/definitions/Recurring'
+      shopperReference:
+        description: The reference you use to uniquely identify the shopper (e.g. user ID or account ID).
+        type: string
+    required:
+      - merchantAccount
+      - shopperReference
   RecurringDetailsResult:
     title: RecurringDetailsResult
     type: object
     properties:
       creationDate:
-        description: the creation date when the shopper record was created
-        type: string
+        description: The date when the recurring details were created.
         format: date-time
-      shopperReference:
-        description: the reference you use to uniquely identify the shopper (e.g. user ID or account ID)
         type: string
       details:
-        description: a list of one or more recurring payment details
-        type: array
+        description: Payment details stored for recurring payments.
         items:
           $ref: '#/definitions/RecurringDetail'
+        type: array
       lastKnownShopperEmail:
-        description: the most recent email for this shopper (if available)
+        description: The most recent email for this shopper (if available).
+        type: string
+      shopperReference:
+        description: The reference you use to uniquely identify the shopper (e.g. user ID or account ID).
         type: string
   StoreDetailAndSubmitRequest:
     title: StoreDetailAndSubmitRequest
@@ -1051,46 +1055,61 @@ definitions:
   RecurringDetail:
     title: RecurringDetail
     properties:
-      name:
-        description: An optional descriptive name for this recurring detail
-        type: string
-      creationDate:
-        type: string
-        format: date-time
-      card:
-        $ref: '#/definitions/Card'
-      billingAddress:
-        $ref: '#/definitions/Address'
       additionalData:
+        additionalProperties:
+          type: string
+        description: |-
+          This field contains additional data, which may be returned in a particular response.
+          The additionalData object consists of entries, each of which includes the key and value. For more information on possible key-value pairs, refer to [RecurringDetail.additionalData](https://docs.adyen.com/developers/api-reference/recurring-api#recurringdetailadditionaldata).
         type: object
-      shopperName:
-        $ref: '#/definitions/Name'
-      socialSecurityNumber:
-        description: the shopper's social security number
+      alias:
+        description: |-
+          The alias of the credit card number.
+          Applies only to recurring contracts storing credit card details
         type: string
-      recurringDetailReference:
-        description: The reference that uniquely identifies the recurring detail
+      aliasType:
+        description: |-
+          The alias type of the credit card number.
+          Applies only to recurring contracts storing credit card details.
         type: string
       bank:
         $ref: '#/definitions/BankAccount'
-      alias:
-        type: string
-      aliasType:
-        type: string
-      variant:
-        type: string
-      paymentMethodVariant:
-        type: string
-      firstPspReference:
-        type: string
+      billingAddress:
+        $ref: '#/definitions/Address'
+      card:
+        $ref: '#/definitions/Card'
       contractTypes:
-        type: array
+        description: Types of recurring contracts.
         items:
           type: string
-      acquirer:
+        type: array
+      creationDate:
+        description: The date when the recurring details were created.
+        format: date-time
         type: string
-      acquirerAccount:
+      firstPspReference:
+        description: The `pspReference` of the first recurring payment that created the recurring detail.
         type: string
+      name:
+        description: An optional descriptive name for this recurring detail.
+        type: string
+      paymentMethodVariant:
+        description: 'The  type or sub-brand of a payment method used, e.g. Visa Debit, Visa Corporate, etc. For more information, refer to [PaymentMethodVariant](https://docs.adyen.com/developers/api-reference/common-api/paymentmethodvariant).'
+        type: string
+      recurringDetailReference:
+        description: The reference that uniquely identifies the recurring detail.
+        type: string
+      shopperName:
+        $ref: '#/definitions/Name'
+      socialSecurityNumber:
+        description: A shopper's social security number (only in countries where it is legal to collect).
+        type: string
+      variant:
+        description: 'The payment method, such as “mc", "visa", "ideal", "paypal".'
+        type: string
+    required:
+      - recurringDetailReference
+      - variant
   ForexQuote:
     title: ForexQuote
     description: the forex quote as returned in the response of the forex service
@@ -1135,20 +1154,31 @@ definitions:
     title: Recurring
     description: the recurring properties of the payment
     type: object
-    required:
-    - contract
     properties:
       contract:
         $ref: '#/definitions/Contract'
       recurringDetailName:
-        description: assign a descriptive name for this detail
+        description: A descriptive name for this detail.
+        type: string
+      tokenService:
+        description: The name of the token service.
+        enum:
+          - VISATOKENSERVICE
+          - MCTOKENSERVICE
         type: string
   Contract:
     title: Contract
-    description: how the recurring detail will be used, multiple values allowed as comma separated
+    description: |-
+      The type of recurring contract to be used.
+      Possible values:
+      * `ONECLICK` – Payment details can be used to initiate a one-click payment, where the shopper enters the [card security code (CVC/CVV)](https://docs.adyen.com/developers/payment-glossary#cardsecuritycodecvccvvcid).
+      * `RECURRING` – Payment details can be used without the card security code to initiate [card-not-present transactions](https://docs.adyen.com/developers/payment-glossary#cardnotpresentcnp).
+      * `ONECLICK,RECURRING` – Payment details can be used regardless of whether the shopper is on your site or not.
+      * `PAYOUT` – Payment details can be used to [make a payout](https://docs.adyen.com/developers/features/third-party-payouts).
     type: string
     enum:
       - 'ONECLICK'
+      - 'ONECLICK,RECURRING'
       - 'RECURRING'
       - 'PAYOUT'
   BrowserInfo:

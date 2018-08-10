@@ -1,0 +1,10 @@
+{
+  "name": "adyen-api-swagger",
+  "version": "1.0.0",
+  "private": true,
+  "license": "Unlicense",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd build && /bin/sh ./run.sh javascript adyen-api-js"
+  }
+}
